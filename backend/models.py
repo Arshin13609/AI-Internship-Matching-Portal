@@ -1,4 +1,6 @@
-from sqlalchemy import Column, Integer, String ,ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint, Float  
+from sqlalchemy import DateTime
+from datetime import datetime
 from database import Base
 
 
@@ -57,3 +59,81 @@ class InternshipSkill(Base):
         nullable=False
     )
     skill_name = Column(String, nullable=False)
+
+class Application(Base):
+    __tablename__ = "applications"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    student_id = Column(
+        Integer,
+        ForeignKey("students.id"),
+        nullable=False
+    )
+
+    internship_id = Column(
+        Integer,
+        ForeignKey("internships.id"),
+        nullable=False
+    )
+
+    status = Column(String, default="applied", nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint(
+            "student_id",
+            "internship_id",
+            name="uq_student_internship_application"
+        ),
+    )
+
+class MatchScore(Base):
+    __tablename__ = "match_scores"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    student_id = Column(
+        Integer,
+        ForeignKey("students.id"),
+        nullable=False
+    )
+
+    internship_id = Column(
+        Integer,
+        ForeignKey("internships.id"),
+        nullable=False
+    )
+
+    keyword_score = Column(Float, default=0.0)
+    multifactor_score = Column(Float, default=0.0)
+    semantic_score = Column(Float, default=0.0)
+    total_score = Column(Float, default=0.0)
+
+    __table_args__ = (
+        UniqueConstraint(
+            "student_id",
+            "internship_id",
+            name="uq_student_internship_match"
+        ),
+    )
+
+class Allocation(Base):
+    __tablename__ = "allocations"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    student_id = Column(
+        Integer,
+        ForeignKey("students.id"),
+        nullable=False
+    )
+
+    internship_id = Column(
+        Integer,
+        ForeignKey("internships.id"),
+        nullable=False
+    )
+
+    status = Column(String, default="allocated", nullable=False)
+
+    allocated_at = Column(DateTime, default=datetime.utcnow)
